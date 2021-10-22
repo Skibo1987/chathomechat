@@ -10,6 +10,8 @@ public class ClientHandler {
     Server server;
     DataInputStream in;
     DataOutputStream out;
+    private boolean autenticated;
+    private String nickname;
 
     public ClientHandler(Socket socket, Server server) {
 
@@ -21,15 +23,43 @@ public class ClientHandler {
 
             new Thread(() -> {
                 try {
+                    //authentification
                     while (true) {
                         String str = in.readUTF();
+
 
                         if (in.equals("/end")) {
                             sendMsg("/end");
                             System.out.println("Client Disconnected");
                             break;
                         }
-                        server.broadcastMsg(str);
+                        if (str.startsWith("/auth ")) {
+                            String[] token = str.split("\\s+");
+                            nickname = server.getAuthService().getNicknameByLoginAndPassword(token[1], token[2]);
+                            if (nickname != null) {
+                                server.subscribe(this);
+                                autenticated = true;
+                                sendMsg("/authok " + nickname);
+                                break;
+                            }else {
+                                sendMsg("Wrong login/password");
+                            }
+
+                        }
+
+
+                    }
+                    //work
+                    while (autenticated) {
+                        String str = in.readUTF();
+
+                        if (in.equals("/end")) {
+                            sendMsg("/end");
+                            System.out.println("Client Disconnected");
+                            break;
+
+                        }
+                        server.broadcastMsg(this, str);
 
                     }
                 } catch (IOException e) {
@@ -50,11 +80,16 @@ public class ClientHandler {
 
 
     }
-    public void sendMsg(String msg){
+
+    public void sendMsg(String msg) {
         try {
             out.writeUTF(msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 }
