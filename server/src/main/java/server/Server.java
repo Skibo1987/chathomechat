@@ -18,7 +18,11 @@ public class Server {
 
     public Server() {
         clients = new CopyOnWriteArrayList<>();
-        authService = new SimpleAuthService();
+//        authService = new SimpleAuthService();
+        if (!SQLHandler.connect()){
+            throw new RuntimeException("No connection with DataBase");
+        }
+        authService = new DBAuthService();
         try {
 
             server = new ServerSocket(PORT);
@@ -36,6 +40,7 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            SQLHandler.disconnect();
             try {
                 server.close();
             } catch (IOException e) {

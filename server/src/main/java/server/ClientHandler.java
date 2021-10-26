@@ -41,7 +41,7 @@ public class ClientHandler {
                                 autenticated = true;
                                 sendMsg("/authok " + nickname);
                                 break;
-                            }else {
+                            } else {
                                 sendMsg("Wrong login/password");
                             }
 
@@ -59,6 +59,33 @@ public class ClientHandler {
                             break;
 
                         }
+                        //SQL//
+                        if (str.startsWith("/chnick ")) {
+                            String[] token = str.split("\\s+", 2);
+                            if (token.length < 2){
+                                continue;
+                            }
+                            if (token[1].contains(" ") ) {
+                                sendMsg("No beckspases in nickname");
+                                continue;
+
+                            }
+                            if (server.getAuthService().changeNick(this.nickname, token[1])){
+                                sendMsg("/yournickis " + token[1]);
+                                sendMsg("Your nickname is changed by " + token[1]);
+                                this.nickname = token[1];
+                                //server.broadcastClientList();
+
+
+                            }else {
+                                sendMsg("Can't chang nick. Nick " + token[1] + "already exist");
+                            }
+
+                        }
+
+
+                        //SQL//
+
                         server.broadcastMsg(this, str);
 
                     }

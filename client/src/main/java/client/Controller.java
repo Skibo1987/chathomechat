@@ -82,6 +82,13 @@ public class Controller implements Initializable {
                                 break;
                             }
 
+                            //SQL//
+                            if (str.startsWith("/yournickis "))
+                                nickname = str.split(" ")[1];
+                            setTitle(nickname);
+
+                            //SQL//
+
                         } else {
                             textArea.appendText(str + "\n");
                         }

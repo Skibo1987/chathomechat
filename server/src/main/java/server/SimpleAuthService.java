@@ -3,7 +3,7 @@ package server;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleAuthService implements AuthService {
+public abstract class SimpleAuthService implements AuthService {
 
     private class UserData {
         String login;

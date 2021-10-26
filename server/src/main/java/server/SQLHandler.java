@@ -45,8 +45,8 @@ public class SQLHandler {
                 nick = rs.getString(1);
             }
             rs.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return nick;
     }
@@ -58,8 +58,8 @@ public class SQLHandler {
             psRegistration.setString(3, nickname);
             psRegistration.executeUpdate();
             return true;
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
 
@@ -74,6 +74,17 @@ public class SQLHandler {
         } catch (SQLException e) {
 
             return false;
+        }
+    }
+    public static void disconnect(){
+        try {
+            psRegistration.close();
+            psGetNickname.close();
+            psChangeNick.close();
+            psGetMessageForNick.close();
+            psAddMessage.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
