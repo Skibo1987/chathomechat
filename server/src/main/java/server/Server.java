@@ -13,10 +13,16 @@ public class Server {
     private Socket socket;
     private final int PORT = 8189;
     private List<ClientHandler> clients;
+    private AuthService authService;
 
 
     public Server() {
         clients = new CopyOnWriteArrayList<>();
+//        authService = new SimpleAuthService();
+        if (!SQLHandler.connect()){
+            throw new RuntimeException("No connection with DataBase");
+        }
+        authService = new DBAuthService();
         try {
 
             server = new ServerSocket(PORT);
@@ -26,7 +32,7 @@ public class Server {
             while (true) {
                 socket = server.accept();
                 System.out.println("Client Connected");
-                subscribe(new ClientHandler(socket, this));
+                new ClientHandler(socket, this);
 
             }
 
@@ -34,6 +40,7 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            SQLHandler.disconnect();
             try {
                 server.close();
             } catch (IOException e) {
@@ -45,18 +52,23 @@ public class Server {
 
     }
 
-    public void broadcastMsg(String msg) {
-        for (ClientHandler c : clients){
-           c.sendMsg(msg);
+    public void broadcastMsg(ClientHandler sender, String msg) {
+        String messege = String.format("[%s]: %s", sender.getNickname(), msg);
+        for (ClientHandler c : clients) {
+            c.sendMsg(messege);
         }
     }
-    public void subscribe(ClientHandler clientHandler){
+
+    public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
 
     }
-    public void unsubscribe(ClientHandler clientHandler){
+
+    public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
     }
 
-
+    public AuthService getAuthService() {
+        return authService;
+    }
 }
